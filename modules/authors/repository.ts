@@ -1,5 +1,4 @@
 import type * as authorValidation from './validation'
-import type { SortKey } from '@/db/helpers'
 import { eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import {
@@ -9,14 +8,14 @@ import {
   normalizeQ,
   orderByFromSort,
 } from '@/db/helpers'
-import { authors } from '@/db/schemas/authors'
+import { authors } from '@/db/schemas'
 import 'server-only'
 
-export function create(value: authorValidation.Author) {
+export function create(value: authorValidation.AuthorCreate) {
   return db.insert(authors).values(value).returning()
 }
 
-export function update(id: number, value: authorValidation.Author) {
+export function update(id: number, value: authorValidation.AuthorUpdate) {
   return db.update(authors).set(value).where(eq(authors.id, id)).returning()
 }
 
@@ -36,7 +35,7 @@ export async function list(p: authorValidation.AuthorsQuery = {
   const pageSize = Math.min(100, Math.max(1, p.pageSize ?? 20))
 
   const where = andAll(
-    ilikeAny(normalizeQ(p.query), [authors.name, authors.bio]),
+    ilikeAny(normalizeQ(p.query), [authors.name, authors.description]),
     dateRange(authors.createdAt, p.createdFrom, p.createdTo),
   )
 

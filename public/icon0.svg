@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="32" height="32"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3379_2985)">
+<rect width="32" height="32" rx="4" fill="#262626"></rect>
+<path d="M25.5 6.50002L23.5296 8.86345C20.0066 13.0892 20.1474 19.2679 23.8592 23.3288L29.5 29.5L23.3287 23.8592C19.2679 20.1474 13.0891 20.0066 8.86342 23.5296L6.49999 25.5L8.47041 23.1366C11.9934 18.9109 11.8527 12.7322 8.14083 8.67131L2.49999 2.50001L8.67127 8.14085C12.7321 11.8527 18.9109 11.9935 23.1366 8.47044L25.5 6.50002Z" fill="white"></path>
+</g>
+<defs>
+<clipPath id="SvgjsClipPath1029">
+<rect width="32" height="32" rx="4" fill="white"></rect>
+</clipPath>
+</defs>
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>

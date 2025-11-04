@@ -3,12 +3,12 @@ import { db } from '@/db'
 import * as authorRepository from './repository'
 import 'server-only'
 
-export async function createAuthor(value: authorValidation.Author) {
+export async function createAuthor(value: authorValidation.AuthorCreate) {
   const [a] = await db.transaction(() => authorRepository.create(value))
   return a
 }
 
-export async function updateAuthor(value: authorValidation.Author) {
+export async function updateAuthor(value: authorValidation.AuthorUpdate) {
   if (!value.id)
     throw new Error('id обязателен')
   const [a] = await db.transaction(() => authorRepository.update(value.id!, value))

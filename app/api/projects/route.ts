@@ -14,6 +14,7 @@ export async function GET(req: Request) {
       page: parsed.page,
       pageSize: parsed.pageSize,
       sort: parsed.sort,
+      authorId: parsed.authorId,
     })
 
     return NextResponse.json(

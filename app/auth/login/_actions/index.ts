@@ -5,8 +5,8 @@ import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { db } from '@/db'
-import { users } from '@/db/schemas/users'
 import { clearAuthCookie, setAuthCookie, signToken } from '@/lib/auth'
+import { users } from '@/modules/users/schema'
 
 const loginSchema = z.object({
   email: z.string().email(),

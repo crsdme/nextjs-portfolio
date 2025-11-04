@@ -2,14 +2,14 @@ import { z } from 'zod'
 
 export const socialSchema = z.object({
   label: z.string().min(1),
-  url: z.string().url(),
+  url: z.string(),
 })
 
 export const authorSchema = z.object({
-  id: z.number().int().positive().optional(),
+  id: z.number().int().positive(),
   name: z.string().min(1, 'Укажите имя'),
-  bio: z.string().optional(),
-  avatarUrl: z.string().url('Укажите корректный URL фото').optional(),
+  description: z.string().optional(),
+  avatarUrl: z.string().optional(),
   socials: z.array(socialSchema).default([]),
   slug: z.string().min(1, 'Укажите slug'),
   createdAt: z.date().optional(),
@@ -18,8 +18,9 @@ export const authorSchema = z.object({
 
 export const authorsSchema = z.array(authorSchema)
 
-export const createSchema = authorSchema.omit({ id: true, createdAt: true, updatedAt: true })
-export const updateSchema = authorSchema.partial().extend({ id: z.number().int().positive() })
+export const createAuthorSchema = authorSchema.omit({ id: true, createdAt: true, updatedAt: true })
+
+export const updateAuthorSchema = authorSchema.partial().extend({ id: z.number().int().positive() })
 
 export const authorsQueryInput = z.object({
   query: z.string().optional(),
@@ -30,5 +31,7 @@ export const authorsQueryInput = z.object({
   createdTo: z.coerce.date().optional(),
 })
 
+export type AuthorUpdate = z.infer<typeof updateAuthorSchema>
+export type AuthorCreate = z.infer<typeof createAuthorSchema>
 export type Author = z.infer<typeof authorSchema>
 export type AuthorsQuery = z.infer<typeof authorsQueryInput>

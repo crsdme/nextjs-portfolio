@@ -1,13 +1,9 @@
 import process from 'node:process'
 import bcrypt from 'bcryptjs'
-import { and, eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { authors } from '@/db/schemas/authors'
-import { projectMedia, projects } from '@/db/schemas/projects'
-import { settings } from '@/db/schemas/settings'
-import { userAuthors, users } from '@/db/schemas/users'
-import * as schema from './schemas'
+import * as schema from '@/db/schemas'
 
 async function main() {
   const client = postgres('postgres://projectuser:projectpassword@localhost:5432/projectdb')
@@ -17,7 +13,6 @@ async function main() {
 
   await db.execute(sql`
     TRUNCATE TABLE
-      user_authors,
       project_media,
       projects,
       authors,
@@ -26,11 +21,11 @@ async function main() {
     RESTART IDENTITY CASCADE;
   `)
 
-  const [ivan] = await db.insert(authors).values({
+  const [ivan] = await db.insert(schema.authors).values({
     name: 'Иван Петров',
     slug: 'ivan-petrov',
-    bio: 'Фронтенд-разработчик. Делаю быстрые и аккуратные интерфейсы.',
-    avatarUrl: '/images/ivan.jpg',
+    description: 'Фронтенд-разработчик. Делаю быстрые и аккуратные интерфейсы.',
+    avatarUrl: 'https://drive.google.com/file/d/1BJa3sjaWeTfkzQKABbN29DPOGZqQVzws/view?usp=sharing',
     socials: [
       { label: 'Telegram', url: 'https://t.me/ivan' },
       { label: 'GitHub', url: 'https://github.com/ivan' },
@@ -38,11 +33,11 @@ async function main() {
     ],
   }).returning()
 
-  const [anna] = await db.insert(authors).values({
+  const [anna] = await db.insert(schema.authors).values({
     name: 'Анна Смирнова',
     slug: 'anna-smirnova',
-    bio: 'Дизайнер интерфейсов и арт-директор. Люблю простые и чистые решения.',
-    avatarUrl: '/images/anna.jpg',
+    description: 'Дизайнер интерфейсов и арт-директор. Люблю простые и чистые решения.',
+    avatarUrl: 'https://drive.google.com/file/d/1FPaX_JBUHyFxF1H9zSmWpsCqwJLVZ8_C/view?usp=sharing',
     socials: [
       { label: 'Behance', url: 'https://behance.net/anna' },
       { label: 'Dribbble', url: 'https://dribbble.com/anna' },
@@ -50,199 +45,359 @@ async function main() {
     ],
   }).returning()
 
+  await db.insert(schema.authors).values({
+    name: 'Андрей Иванов',
+    slug: 'andrey-ivanov',
+    description: 'Backend-разработчик. Делаю надежные и масштабируемые сервисы.',
+    avatarUrl: 'https://drive.google.com/file/d/1PueiamS2OBE10D-YB67O5MAVS_kKtKZI/view',
+    socials: [
+      { label: 'Telegram', url: 'https://t.me/andrey' },
+      { label: 'GitHub', url: 'https://github.com/andrey' },
+      { label: 'LinkedIn', url: 'https://linkedin.com/in/andrey' },
+    ],
+  }).returning()
+
+  await db.insert(schema.authors).values({
+    name: 'Игорь Сидоров',
+    slug: 'igor-sidorov',
+    description: 'Fullstack-разработчик. Делаю полные и масштабируемые сервисы.',
+    avatarUrl: 'https://drive.google.com/file/d/1pes7vJfnjyClJ9O1s1H6d-FMSE7Y6IBt/view?usp=drive_link',
+    socials: [
+      { label: 'Telegram', url: 'https://t.me/igor' },
+      { label: 'GitHub', url: 'https://github.com/igor' },
+      { label: 'LinkedIn', url: 'https://linkedin.com/in/igor' },
+    ],
+  }).returning()
+
+  await db.insert(schema.authors).values({
+    name: 'Михаил Петров',
+    slug: 'mikhail-petrov',
+    description: 'Дизайнер интерфейсов и арт-директор. Люблю простые и чистые решения.',
+    avatarUrl: 'https://drive.google.com/file/d/1pes7vJfnjyClJ9O1s1H6d-FMSE7Y6IBt/view?usp=drive_link',
+    socials: [
+      { label: 'Telegram', url: 'https://t.me/mikhail' },
+      { label: 'GitHub', url: 'https://github.com/mikhail' },
+    ],
+  }).returning()
+
   const adminHash = await bcrypt.hash('admin123', 10)
   const editorHash = await bcrypt.hash('editor123', 10)
 
-  const [admin] = await db.insert(users).values({
+  const [admin] = await db.insert(schema.users).values({
     email: 'admin@site.local',
     passwordHash: adminHash,
     role: 'admin',
   }).returning()
 
-  const [editor] = await db.insert(users).values({
+  const [editor] = await db.insert(schema.users).values({
     email: 'editor@site.local',
     passwordHash: editorHash,
     role: 'editor',
   }).returning()
 
-  await db.insert(userAuthors).values([
-    {
-      userId: admin.id,
-      authorId: ivan.id,
-      canCreate: true,
-      canUpdate: true,
-      canDelete: true,
-      canPublish: true,
-    },
-    {
-      userId: admin.id,
-      authorId: anna.id,
-      canCreate: true,
-      canUpdate: true,
-      canDelete: true,
-      canPublish: true,
-    },
-  ])
-
-  await db.insert(userAuthors).values({
-    userId: editor.id,
+  const [p1] = await db.insert(schema.projects).values({
     authorId: ivan.id,
-    canCreate: true,
-    canUpdate: true,
-    canDelete: false,
-    canPublish: false,
-  })
-
-  const [p1] = await db.insert(projects).values({
-    authorId: ivan.id,
-    slug: 'product-teaser',
+    slug: 'product-teaser-2',
     title: 'Product Teaser',
     subtitle: '30-секундный ролик',
     description: 'Короткий тизер и кадры из интерфейса.',
     status: 'active',
-    projectUrl: 'https://example.com/teaser',
-    tags: ['new', '2025', 'motion'],
+    tags: [{
+      label: 'new',
+      url: 'https://new.com',
+    }, {
+      label: '2025',
+      url: 'https://2025.com',
+    }, {
+      label: 'motion',
+      url: 'https://motion.com',
+    }],
     date: new Date('2025-02-12T00:00:00Z'),
   }).returning()
 
-  const [p1Slide0] = await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p1.id,
     position: 0,
     type: 'video',
-    videoKind: 'youtube',
-    videoSrc: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    poster: '/images/posters/teaser.jpg',
+    src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
     caption: '30 сек тизер',
-    visible: true,
   }).returning()
 
-  await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p1.id,
     position: 1,
     type: 'image',
-    imageSrc: '/images/teaser-shot-1.jpg',
-    imageAlt: 'Первый экран',
+    src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
     caption: 'Первый экран лендинга',
-    visible: true,
   })
 
-  await db.update(projects)
-    .set({ coverMediaId: p1Slide0.id })
-    .where(eq(projects.id, p1.id))
-
-  const [p2] = await db.insert(projects).values({
+  const [p2] = await db.insert(schema.projects).values({
     authorId: ivan.id,
     slug: 'aurora-landing',
     title: 'Aurora Landing',
     subtitle: 'Акцент на скорость',
     description: 'Лайтхаус 98/100, адаптив и доступность.',
     status: 'active',
-    projectUrl: 'https://aurora.example.com',
-    tags: ['react', 'nextjs', 'perf'],
+    tags: [{
+      label: 'react',
+      url: 'https://react.dev',
+    }, {
+      label: 'nextjs',
+      url: 'https://nextjs.org',
+    }, {
+      label: 'perf',
+      url: 'https://perf.dev',
+    }],
     date: new Date('2025-01-05T00:00:00Z'),
   }).returning()
 
-  const [p2Slide0] = await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p2.id,
     position: 0,
     type: 'image',
-    imageSrc: '/images/aurora-cover.jpg',
-    imageAlt: 'Aurora cover',
+    src: 'https://drive.google.com/file/d/17Le_7eAIeliBNqTnFxGCnxCC95WeH_F9/view?usp=drive_link',
     caption: 'Главный экран',
-    visible: true,
+    description: 'Главный экран',
   }).returning()
 
-  await db.insert(projectMedia).values([
+  await db.insert(schema.projectMedia).values([
     {
       projectId: p2.id,
       position: 1,
       type: 'image',
-      imageSrc: '/images/aurora-2.jpg',
-      imageAlt: 'Секция преимущества',
-      visible: true,
+      src: 'https://drive.google.com/file/d/1sekITQQNtcCCPeoNqkMAB_BoIm6hW0CF/view?usp=drive_link',
+      caption: 'Серый фреш',
+      description: 'Серый фреш',
     },
     {
       projectId: p2.id,
       position: 2,
       type: 'image',
-      imageSrc: '/images/aurora-3.jpg',
-      imageAlt: 'Галерея скриншотов',
-      visible: true,
+      src: 'https://drive.google.com/file/d/1Da-7Exb9bXSqTtX_2TNT8REh2zoNe1-k/view?usp=drive_link',
+      caption: 'Синий фреш',
+      description: 'Синий фреш',
     },
   ])
 
-  await db.update(projects)
-    .set({ coverMediaId: p2Slide0.id })
-    .where(eq(projects.id, p2.id))
-
-  const [p3] = await db.insert(projects).values({
+  const [p3] = await db.insert(schema.projects).values({
     authorId: anna.id,
     slug: 'nimbus-design-system',
     title: 'Nimbus Design System',
     subtitle: 'Компоненты и токены',
     description: 'Системная библиотека для масштабируемых интерфейсов.',
     status: 'active',
-    repoUrl: 'https://github.com/user/nimbus',
-    tags: ['design', 'system', 'react'],
+    tags: [{
+      label: 'design',
+      url: 'https://design.com',
+    }, {
+      label: 'system',
+      url: 'https://system.com',
+    }, {
+      label: 'react',
+      url: 'https://react.dev',
+    }],
     date: new Date('2024-11-20T00:00:00Z'),
   }).returning()
 
-  await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p3.id,
     position: 0,
     type: 'image',
-    imageSrc: '/images/nimbus-1.png',
-    imageAlt: 'Превью компонентов',
-    visible: true,
+    src: 'https://drive.google.com/file/d/1g148hUBBGceiUA8I4BCPLKlGBbqfXGCo/view?usp=drive_link',
+    caption: 'Взрывные ягоды',
   })
 
-  const [p3Slide1] = await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p3.id,
     position: 1,
     type: 'image',
-    imageSrc: '/images/nimbus-2.png',
-    imageAlt: 'Типографическая сетка',
-    caption: 'Сетка и стили',
-    visible: true,
+    src: 'https://drive.google.com/file/d/1RfeVJc1JXwZcNRC6aqwfvzUHk33JVpk-/view?usp=drive_link',
+    caption: 'Баштановый фреш',
   }).returning()
 
-  await db.update(projects)
-    .set({ coverMediaId: p3Slide1.id })
-    .where(eq(projects.id, p3.id))
-
-  const [p4] = await db.insert(projects).values({
+  const [p4] = await db.insert(schema.projects).values({
     authorId: anna.id,
     slug: 'conference-reel',
     title: 'Conference Reel',
     subtitle: 'Динамичная нарезка',
     description: 'Короткий ролик с мероприятия, упор на динамику.',
     status: 'active',
-    tags: ['video', 'event'],
+    tags: [{
+      label: 'video',
+      url: 'https://video.com',
+    }, {
+      label: 'event',
+      url: 'https://event.com',
+    }],
     date: new Date('2024-10-01T00:00:00Z'),
   }).returning()
 
-  const [p4Slide0] = await db.insert(projectMedia).values({
+  await db.insert(schema.projectMedia).values({
     projectId: p4.id,
     position: 0,
     type: 'video',
-    videoKind: 'mp4',
-    videoSrc: '/videos/conf-reel.mp4',
-    poster: '/images/conf-poster.jpg',
+    src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
     caption: 'Reel 45 сек',
-    visible: true,
+    description: 'Reel 45 сек',
   }).returning()
 
-  await db.update(projects)
-    .set({ coverMediaId: p4Slide0.id })
-    .where(eq(projects.id, p4.id))
+  const [p5] = await db.insert(schema.projects).values({
+    authorId: ivan.id,
+    slug: 'product-teaser',
+    title: 'Product Teaser',
+    subtitle: '30-секундный ролик',
+    description: 'Короткий тизер и кадры из интерфейса.',
+    status: 'active',
+    tags: [{
+      label: 'new',
+      url: 'https://new.com',
+    }, {
+      label: '2025',
+      url: 'https://2025.com',
+    }, {
+      label: 'motion',
+      url: 'https://motion.com',
+    }],
+    date: new Date('2025-02-12T00:00:00Z'),
+  }).returning()
 
-  await db.insert(settings).values([
+  await db.insert(schema.projectMedia).values({
+    projectId: p5.id,
+    position: 0,
+    type: 'video',
+    src: 'https://drive.google.com/file/d/1esjFzGEZP9Fx-EmTXVU_dvioIamrTfvK/view?usp=drive_link',
+    caption: 'Кот',
+    description: 'Видео с котом',
+  }).returning()
+
+  await db.insert(schema.projectMedia).values({
+    projectId: p5.id,
+    position: 1,
+    type: 'image',
+    src: 'https://drive.google.com/file/d/1evRUrcDWeSgmZU2ert9GgxBd0rDwigL7/view?usp=drive_link',
+    caption: 'Цитрусовый фреш',
+    description: 'Цитрусовый фреш',
+  }).returning()
+
+  const [p6] = await db.insert(schema.projects).values({
+    authorId: ivan.id,
+    slug: 'aurora-landing-2',
+    title: 'Aurora Landing',
+    subtitle: 'Акцент на скорость',
+    description: 'Лайтхаус 98/100, адаптив и доступность.',
+    status: 'active',
+    tags: [{
+      label: 'react',
+      url: 'https://react.dev',
+    }, {
+      label: 'nextjs',
+      url: 'https://nextjs.org',
+    }, {
+      label: 'perf',
+      url: 'https://perf.dev',
+    }],
+    date: new Date('2025-01-05T00:00:00Z'),
+  }).returning()
+
+  await db.insert(schema.projectMedia).values({
+    projectId: p6.id,
+    position: 0,
+    type: 'image',
+    src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+    caption: 'Главный экран',
+    description: 'Главный экран',
+  }).returning()
+
+  await db.insert(schema.projectMedia).values([
+    {
+      projectId: p6.id,
+      position: 1,
+      type: 'image',
+      src: 'https://drive.google.com/file/d/1nBPEUTa-x0oAKowty5D_jzgyCyR84NYG/view?usp=drive_link',
+      caption: 'Фреш с закатами',
+      description: 'Фреш с закатами',
+    },
+    {
+      projectId: p6.id,
+      position: 2,
+      type: 'image',
+      src: 'https://drive.google.com/file/d/1ZZ1bHRJqVdSS1cod5jcYThbg7P4hCX-P/view?usp=drive_link',
+      caption: 'Хвоя',
+      description: 'Хвоя на фоне',
+    },
+  ])
+
+  const [p7] = await db.insert(schema.projects).values({
+    authorId: anna.id,
+    slug: 'nimbus-design-system-2',
+    title: 'Nimbus Design System',
+    subtitle: 'Компоненты и токены',
+    description: 'Системная библиотека для масштабируемых интерфейсов.',
+    status: 'active',
+    tags: [{
+      label: 'design',
+      url: 'https://design.com',
+    }, {
+      label: 'system',
+      url: 'https://system.com',
+    }, {
+      label: 'react',
+      url: 'https://react.dev',
+    }],
+    date: new Date('2024-11-20T00:00:00Z'),
+  }).returning()
+
+  await db.insert(schema.projectMedia).values({
+    projectId: p7.id,
+    position: 0,
+    type: 'image',
+    src: 'https://drive.google.com/file/d/1h6TOZmmO1jUKt0u8ubp2aoAVz2pSuzs7/view?usp=drive_link',
+    caption: 'Годжи',
+    description: 'Годжи вкус',
+  })
+
+  await db.insert(schema.projectMedia).values({
+    projectId: p7.id,
+    position: 1,
+    type: 'image',
+    src: 'https://drive.google.com/file/d/1FjOJmDC-53ndpcG8ilreBtbUK98gRgZY/view?usp=drive_link',
+    caption: 'Черника',
+    description: 'Черника вкус',
+  }).returning()
+
+  const [p8] = await db.insert(schema.projects).values({
+    authorId: anna.id,
+    slug: 'conference-reel-2',
+    title: 'Conference Reel',
+    subtitle: 'Динамичная нарезка',
+    description: 'Короткий ролик с мероприятия, упор на динамику.',
+    status: 'active',
+    tags: [{
+      label: 'video',
+      url: 'https://video.com',
+    }, {
+      label: 'event',
+      url: 'https://event.com',
+    }],
+    date: new Date('2024-10-01T00:00:00Z'),
+  }).returning()
+
+  await db.insert(schema.projectMedia).values({
+    projectId: p8.id,
+    position: 0,
+    type: 'video',
+    src: 'https://drive.google.com/file/d/1cT0RdbFMXn9NC4eLpCdpnOx3P-k8tObA/view?usp=drive_link',
+    caption: 'Видео 420',
+    description: 'Банки 420 в полете',
+  }).returning()
+
+  await db.insert(schema.settings).values([
     {
       key: 'site.seo',
       value: {
         title: 'Портфолио',
         description: 'Минималистичная галерея работ: фото и видео с описаниями.',
-        ogImage: '/images/og.jpg',
+        ogImage: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
       },
     },
     {
@@ -263,6 +418,293 @@ async function main() {
     },
   ])
 
+  const projects = [
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-2-32421',
+      title: 'Product Teaser 2',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-2-3231',
+      title: 'Product Teaser',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-43524662',
+      title: 'Product Teaser',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-345v342',
+      title: 'Product Teaser',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-2c31241c234',
+      title: 'Product Teaser',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+    {
+      authorId: ivan.id,
+      slug: 'product-teaser-231c41234c1232',
+      title: 'Product Teaser',
+      subtitle: '30-секундный ролик',
+      description: 'Короткий тизер и кадры из интерфейса.',
+      status: 'active',
+      tags: [{
+        label: 'new',
+        url: 'https://new.com',
+      }, {
+        label: '2025',
+        url: 'https://2025.com',
+      }, {
+        label: 'motion',
+        url: 'https://motion.com',
+      }],
+      date: new Date('2025-02-12T00:00:00Z'),
+      slides: [
+        {
+          type: 'video',
+          src: 'https://drive.google.com/file/d/1XBsmZ5INFaG5wC-A8avYJTzv8_1lFqZg/view?usp=drive_link',
+          caption: '30 сек тизер',
+          description: '30 сек тизер',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+        {
+          type: 'image',
+          src: 'https://drive.google.com/file/d/1kjty0PxtjxcTg6KClINZBvR7JcicdDTT/view?usp=drive_link',
+          caption: 'Первый экран лендинга',
+          description: 'Первый экран лендинга',
+        },
+      ],
+    },
+  ]
+
+  for (const project of projects) {
+    const [p] = await db.insert(schema.projects).values({ ...project, status: 'active' }).returning()
+    for (const slide of project.slides) {
+      await db.insert(schema.projectMedia).values({
+        projectId: p.id,
+        position: 0,
+        type: slide.type as 'image' | 'video',
+        src: slide.src,
+        caption: slide.caption,
+        description: slide.description,
+      }).returning()
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.timeEnd('seed')
   // eslint-disable-next-line no-console
@@ -271,6 +713,7 @@ async function main() {
     users: [admin.email, editor.email],
     projects: [p1.slug, p2.slug, p3.slug, p4.slug],
   })
+  process.exit(0)
 }
 
 main().catch((e) => {

@@ -55,7 +55,7 @@ export default function LoginPage() {
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" disabled={pending} className="w-full">
+            <Button type="submit" disabled={pending} className="w-full mt-4">
               {pending ? 'Входим…' : 'Войти'}
             </Button>
           </CardFooter>

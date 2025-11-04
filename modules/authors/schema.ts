@@ -6,7 +6,7 @@ export interface Social { label: string, url: string }
 export const authors = pgTable('authors', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  bio: text('bio'),
+  description: text('description'),
   avatarUrl: text('avatar_url'),
   socials: jsonb('socials').$type<Social[]>().notNull().default(sql`'[]'::jsonb`),
 
