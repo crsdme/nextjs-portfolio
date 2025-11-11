@@ -202,7 +202,7 @@ export function ProjectsForm() {
                   <Input
                     placeholder="Название"
                     {...field}
-                    className="flex-1"
+                    className="flex-1 min-h-9"
                   />
                 )}
               />
@@ -227,7 +227,7 @@ export function ProjectsForm() {
                   <Input
                     placeholder="URL"
                     {...field}
-                    className="flex-1"
+                    className="flex-1 min-h-9"
                   />
                 )}
               />

@@ -1,10 +1,19 @@
 'use client'
 
 import { useActionState } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label } from '@/components/ui/'
-
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldLabel,
+  Input,
+} from '@/components/ui/'
 
 import { loginAction } from './_actions'
 
@@ -12,55 +21,52 @@ export default function LoginPage() {
   const [state, action, pending] = useActionState(loginAction as any, { ok: false } as any)
 
   return (
-    <div className="mx-auto mt-16 w-full max-w-sm">
-      <Card>
-        <CardHeader>
-          <CardTitle>Вход</CardTitle>
-          <CardDescription>Введите email и пароль, чтобы продолжить.</CardDescription>
-        </CardHeader>
-
-        <form action={action}>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                required
-                disabled={pending}
-                autoComplete="email"
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="password">Пароль</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="********"
-                required
-                disabled={pending}
-                autoComplete="current-password"
-              />
-            </div>
-
-            {state?.error && (
-              <Alert variant="destructive">
-                <AlertDescription>{state.error}</AlertDescription>
-              </Alert>
-            )}
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+      <div className="flex flex-col gap-6 mx-auto mt-16 w-full max-w-sm">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">Вход</CardTitle>
+            <CardDescription>
+              Введите email и пароль, чтобы продолжить.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={action} className="space-y-4">
+              <Field>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  disabled={pending}
+                />
+              </Field>
+              <Field>
+                <div className="flex items-center">
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                </div>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  disabled={pending}
+                />
+              </Field>
+              <Field>
+                <Button type="submit" isLoading={pending}>Войти</Button>
+              </Field>
+              {state?.error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{state.error}</AlertDescription>
+                </Alert>
+              )}
+            </form>
           </CardContent>
-
-          <CardFooter>
-            <Button type="submit" disabled={pending} className="w-full mt-4">
-              {pending ? 'Входим…' : 'Войти'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+        </Card>
+      </div>
     </div>
   )
 }

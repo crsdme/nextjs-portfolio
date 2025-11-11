@@ -24,6 +24,7 @@ export async function loginAction(_: unknown, formData: FormData) {
     email: formData.get('email'),
     password: formData.get('password'),
   })
+
   if (!parsed.success) {
     return { ok: false, error: 'Неверные данные формы' as const }
   }

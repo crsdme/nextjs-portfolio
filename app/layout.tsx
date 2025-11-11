@@ -1,8 +1,7 @@
 import type { Metadata } from 'next'
 import process from 'node:process'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { AuthorsList } from '@/components/'
-import Providers from './providers'
+import Providers from '@/app/providers'
 import './globals.css'
 
 const geistSans = Geist({
@@ -60,7 +59,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
         <Providers>
-          <AuthorsList />
           {children}
         </Providers>
       </body>
