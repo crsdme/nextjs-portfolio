@@ -5,8 +5,25 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '@/db/schemas'
 
+async function waitDb(retries = 30, delay = 1000) {
+  while (retries--) {
+    try {
+      const sql = postgres(process.env.DATABASE_URL!, { max: 1 })
+      await sql`select 1`
+      await sql.end({ timeout: 1 })
+      return
+    }
+    catch (e) {
+      if (!retries)
+        throw e
+      await new Promise(r => setTimeout(r, delay))
+    }
+  }
+}
+
 async function main() {
-  const client = postgres('postgres://projectuser:projectpassword@localhost:5432/projectdb')
+  await waitDb()
+  const client = postgres(process.env.DATABASE_URL!)
   const db = drizzle(client, { schema })
   // eslint-disable-next-line no-console
   console.time('seed')
