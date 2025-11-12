@@ -1,0 +1,35 @@
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: dev-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: projectdb
+      POSTGRES_USER: projectuser
+      POSTGRES_PASSWORD: projectpassword
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U projectuser -d projectdb]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: dev-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
