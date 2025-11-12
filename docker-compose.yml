@@ -10,6 +10,11 @@ services:
       POSTGRES_PASSWORD: projectpassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U projectuser -d projectdb"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     networks:
       - web
 
