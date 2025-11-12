@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:16.4-alpine
@@ -59,16 +57,26 @@ services:
       DATABASE_URL: postgres://projectuser:projectpassword@postgres:5432/projectdb
     labels:
       - traefik.enable=true
-      - traefik.http.routers.app.rule=Host(`crsd.me`)
-      - traefik.http.routers.app.entrypoints=websecure
-      - traefik.http.routers.app.tls.certresolver=lehttp
-
-      - traefik.http.routers.app-http.rule=Host(`crsd.me`)
+      - traefik.http.routers.app-http.rule=Host(`crsd.me`,`www.crsd.me`)
       - traefik.http.routers.app-http.entrypoints=web
       - traefik.http.routers.app-http.middlewares=redirect-https
       - traefik.http.middlewares.redirect-https.redirectscheme.scheme=https
 
+      - traefik.http.routers.app.rule=Host(`crsd.me`,`www.crsd.me`)
+      - traefik.http.routers.app.entrypoints=websecure
+      - traefik.http.routers.app.tls=true
+      - traefik.http.routers.app.tls.certresolver=lehttp
+
+      - traefik.http.routers.www-redirect.rule=Host(`www.crsd.me`)
+      - traefik.http.routers.www-redirect.entrypoints=web,websecure
+      - traefik.http.routers.www-redirect.middlewares=to-apex
+      - traefik.http.middlewares.to-apex.redirectregex.regex=^https?://www\.crsd\.me/(.*)
+      - traefik.http.middlewares.to-apex.redirectregex.replacement=https://crsd.me/$1
+      - traefik.http.middlewares.to-apex.redirectregex.permanent=true
+
       - traefik.http.services.app.loadbalancer.server.port=3000
+
+      - traefik.docker.network=web
     networks:
       - web
 
