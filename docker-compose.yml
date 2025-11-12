@@ -10,11 +10,8 @@ services:
       POSTGRES_PASSWORD: projectpassword
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U projectuser -d projectdb"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+    networks:
+      - web
 
   app:
     build: .
@@ -29,12 +26,24 @@ services:
     networks:
       - web
 
-volumes:
-  postgres_data:
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - web
 
 networks:
   web:
     driver: bridge
+
+volumes:
+  postgres_data:
 
 
 # services:
