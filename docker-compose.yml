@@ -73,23 +73,22 @@ services:
       - web
 
   traefik:
-    image: traefik:v3.1
+    image: traefik:latest
     restart: unless-stopped
     command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
-
       - --certificatesresolvers.lehttp.acme.email=admin@crsd.me
       - --certificatesresolvers.lehttp.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.lehttp.acme.httpchallenge=true
       - --certificatesresolvers.lehttp.acme.httpchallenge.entrypoint=web
-
       - --api.dashboard=true
       - --api.insecure=true
-
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DOCKER_API_VERSION=1.44
     ports:
       - "80:80"
       - "443:443"
@@ -98,6 +97,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./letsencrypt:/letsencrypt
     networks: [web]
+
 
   # nginx:
   #   image: nginx:latest
