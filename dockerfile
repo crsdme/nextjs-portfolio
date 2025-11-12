@@ -13,6 +13,7 @@ RUN npm run build
     
 FROM node:20-alpine AS tools
 WORKDIR /app
+RUN apk add --no-cache postgresql-client
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
