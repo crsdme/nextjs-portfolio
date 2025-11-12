@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { AuthorsList, ProjectsClientList } from '@/components/'
+import { ProjectsClientList } from '@/components/'
 import * as actions from './_actions'
 
 interface RouteParams { slug: string, rest?: string[] }
