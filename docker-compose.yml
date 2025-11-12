@@ -57,12 +57,12 @@ services:
       DATABASE_URL: postgres://projectuser:projectpassword@postgres:5432/projectdb
     labels:
       - traefik.enable=true
-      - traefik.http.routers.app-http.rule=Host(`crsd.me`,`www.crsd.me`)
+      - traefik.http.routers.app-http.rule=Host(`crsd.me`) || Host(`www.crsd.me`)
       - traefik.http.routers.app-http.entrypoints=web
       - traefik.http.routers.app-http.middlewares=redirect-https
       - traefik.http.middlewares.redirect-https.redirectscheme.scheme=https
 
-      - traefik.http.routers.app.rule=Host(`crsd.me`,`www.crsd.me`)
+      - traefik.http.routers.app.rule=Host(`crsd.me`) || Host(`www.crsd.me`)
       - traefik.http.routers.app.entrypoints=websecure
       - traefik.http.routers.app.tls=true
       - traefik.http.routers.app.tls.certresolver=lehttp
