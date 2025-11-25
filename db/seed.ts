@@ -104,15 +104,15 @@ async function main() {
   const [admin] = await db.insert(schema.users).values({
     login: 'admin',
     passwordHash: adminHash,
-    accesses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    authors: [ivan.id, anna.id],
+    accesses: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+    authors: [ivan.id.toString(), anna.id.toString()],
   }).returning()
 
   const [editor] = await db.insert(schema.users).values({
     login: 'editor',
     passwordHash: editorHash,
-    accesses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    authors: [ivan.id, anna.id],
+    accesses: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+    authors: [ivan.id.toString(), anna.id.toString()],
   }).returning()
 
   const [p1] = await db.insert(schema.projects).values({
