@@ -1,3 +1,5 @@
+'use server'
+
 import type { JWTPayload } from 'jose'
 import process from 'node:process'
 import { jwtVerify, SignJWT } from 'jose'
@@ -34,7 +36,16 @@ export async function setAuthCookie(token: string) {
 }
 
 export async function clearAuthCookie() {
-  (await cookies()).set(cookieName, '', { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 0 })
+  const store = await cookies()
+
+  store.set(cookieName, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+    expires: new Date(0),
+  })
 }
 
 export async function currentUser() {

@@ -5,6 +5,7 @@ import {
   LogOut,
 } from 'lucide-react'
 
+import { useTransition } from 'react'
 import { logoutAction } from '@/app/auth/login/_actions'
 import {
   Avatar,
@@ -36,6 +37,13 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const [isPending, startTransition] = useTransition()
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logoutAction()
+    })
+  }
 
   return (
     <SidebarMenu>
@@ -76,7 +84,7 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logoutAction}>
+            <DropdownMenuItem onClick={handleLogout} disabled={isPending}>
               <LogOut />
               Log out
             </DropdownMenuItem>

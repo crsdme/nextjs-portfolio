@@ -46,8 +46,8 @@ export async function loginAction(_: unknown, formData: FormData) {
 }
 
 export async function logoutAction() {
-  clearAuthCookie()
-  redirect('/login')
+  await clearAuthCookie()
+  redirect('/')
 }
 
 export async function registerAction(_: unknown, formData: FormData) {
@@ -63,7 +63,7 @@ export async function registerAction(_: unknown, formData: FormData) {
   const { login, password, accesses, authors } = parsed.data
   const hash = await bcrypt.hash(password, 10)
 
-  await db.insert(users).values({ login, passwordHash: hash, accesses, authors })
+  await db.insert(users).values({ login: login as string, passwordHash: hash, accesses: accesses as any, authors: authors as any })
 
   const token = await signToken({ sub: String(0), login, accesses: accesses as any })
   await setAuthCookie(token)
