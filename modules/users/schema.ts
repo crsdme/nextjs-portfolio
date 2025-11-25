@@ -5,12 +5,18 @@ export const userRoleEnum = pgEnum('user_role', ['admin', 'editor', 'viewer'])
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  email: text('email').notNull(),
+  login: text('login').notNull(),
   passwordHash: text('password_hash').notNull(),
-  role: userRoleEnum('role').notNull().default('editor'),
-
+  accesses: text('accesses')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  authors: text('authors')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
   createdAt: timestamp('created_at').notNull().default(sql`now()`),
   updatedAt: timestamp('updated_at').notNull().default(sql`now()`),
 }, t => ({
-  emailUidx: uniqueIndex('users_email_uidx').on(t.email),
+  loginUidx: uniqueIndex('users_login_uidx').on(t.login),
 }))

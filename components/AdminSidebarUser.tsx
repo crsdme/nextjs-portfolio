@@ -5,6 +5,7 @@ import {
   LogOut,
 } from 'lucide-react'
 
+import { logoutAction } from '@/app/auth/login/_actions'
 import {
   Avatar,
   AvatarFallback,
@@ -75,7 +76,7 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logoutAction}>
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -23,7 +23,7 @@ export function AuthorsTable() {
 
   if (isLoading) {
     return (
-      <div className="p-6 grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, i) => (
           <Skeleton key={i} className="h-16 w-full" />
         ))}
@@ -48,11 +48,11 @@ export function AuthorsTable() {
               {author.avatarUrl
                 ? (
                     <Image
-                      src={`/api/image/thumb?id=${extractDriveFileId(author.avatarUrl)}&w=32`}
+                      src={`/api/image/thumb?id=${extractDriveFileId(author.avatarUrl)}&w=40`}
                       alt={author.name}
-                      width={32}
-                      height={32}
-                      className="object-cover grayscale"
+                      width={40}
+                      height={40}
+                      className="object-cover"
                     />
                   )
                 : (
@@ -65,12 +65,14 @@ export function AuthorsTable() {
               </ItemTitle>
             </ItemContent>
             <ItemActions>
-              <Button size="icon" variant="outline" onClick={() => onEdit(author.id || 0)}>
-                <Edit />
-              </Button>
-              <Button size="icon" variant="destructive" onClick={() => handleSubmitDelete(author.id || 0)}>
-                <Trash2 />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button size="icon" variant="outline" onClick={() => onEdit(author.id || 0)}>
+                  <Edit className="size-4" />
+                </Button>
+                <Button size="icon" variant="destructive" onClick={() => handleSubmitDelete(author.id || 0)}>
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
             </ItemActions>
           </Item>
         ))}

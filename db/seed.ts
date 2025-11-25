@@ -1,9 +1,10 @@
 import process from 'node:process'
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '@/db/schemas'
+import 'dotenv/config'
 
 async function waitDb(retries = 30, delay = 1000) {
   while (retries--) {
@@ -101,15 +102,17 @@ async function main() {
   const editorHash = await bcrypt.hash('editor123', 10)
 
   const [admin] = await db.insert(schema.users).values({
-    email: 'admin@site.local',
+    login: 'admin',
     passwordHash: adminHash,
-    role: 'admin',
+    accesses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    authors: [ivan.id, anna.id],
   }).returning()
 
   const [editor] = await db.insert(schema.users).values({
-    email: 'editor@site.local',
+    login: 'editor',
     passwordHash: editorHash,
-    role: 'editor',
+    accesses: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    authors: [ivan.id, anna.id],
   }).returning()
 
   const [p1] = await db.insert(schema.projects).values({
@@ -727,7 +730,7 @@ async function main() {
   // eslint-disable-next-line no-console
   console.log('✔ Seed completed:', {
     authors: [ivan.slug, anna.slug],
-    users: [admin.email, editor.email],
+    users: [admin.login, editor.login],
     projects: [p1.slug, p2.slug, p3.slug, p4.slug],
   })
   process.exit(0)

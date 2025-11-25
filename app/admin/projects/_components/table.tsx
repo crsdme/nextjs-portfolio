@@ -1,29 +1,20 @@
-import { Edit, Trash2 } from 'lucide-react'
-import Image from 'next/image'
-import {
-  Button,
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-  Skeleton,
-} from '@/components/ui'
-import { extractDriveFileId } from '@/lib/url'
+import { flexRender } from '@tanstack/react-table'
+import { Button, Skeleton } from '@/components/ui'
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useProjectsPageContext } from '../providers'
 
 export function ProjectsTable() {
   const {
     projects,
-    handleSubmitDelete,
-    onEdit,
     isLoading,
+    table,
+    pagination,
   } = useProjectsPageContext()
 
   if (isLoading) {
     return (
-      <div className="p-6 grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
         {Array.from({ length: 2 }).map((_, i) => (
           <Skeleton key={i} className="h-16 w-full" />
         ))}
@@ -40,41 +31,100 @@ export function ProjectsTable() {
   }
 
   return (
-    <div>
-      <ItemGroup className="gap-4">
-        {projects.map(project => (
-          <Item key={project.slug} variant="outline" role="listitem">
-            <ItemMedia variant="image">
-              {project.slides?.[0]?.src
-                ? (
-                    <Image
-                      src={`/api/image/thumb?id=${extractDriveFileId(project.slides?.[0]?.src)}&w=32`}
-                      alt={project.title}
-                      width={32}
-                      height={32}
-                      className="object-cover grayscale"
-                    />
+    <>
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
                   )
-                : (
-                    <div className="h-16 w-16 rounded-full bg-neutral-700" />
-                  )}
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle className="line-clamp-1">
-                {project.title}
-              </ItemTitle>
-            </ItemContent>
-            <ItemActions>
-              <Button size="icon" variant="outline" onClick={() => onEdit(project.id || 0)}>
-                <Edit />
-              </Button>
-              <Button size="icon" variant="destructive" onClick={() => handleSubmitDelete(project.id || 0)}>
-                <Trash2 />
-              </Button>
-            </ItemActions>
-          </Item>
-        ))}
-      </ItemGroup>
-    </div>
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length
+              ? (
+                  table.getRowModel().rows.map(row => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                )
+              : (
+                  <TableRow>
+                    <TableCell colSpan={table.getAllColumns().length} className="h-24 text-center">
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Pagination className="justify-end m-0">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() =>
+                pagination.prev()}
+              aria-disabled={pagination.isFirstPage}
+              tabIndex={pagination.isFirstPage ? -1 : undefined}
+              className={pagination.isFirstPage ? 'pointer-events-none opacity-50' : undefined}
+            />
+          </PaginationItem>
+
+          {(() => {
+            const maxVisiblePages = 5
+            const startPage = Math.max(1, pagination.page - Math.floor(maxVisiblePages / 2))
+            const endPage = Math.min(pagination.pageCount, startPage + maxVisiblePages - 1)
+
+            return Array.from({ length: endPage - startPage + 1 }, (_, i) => {
+              const pageNumber = startPage + i
+              return (
+                <PaginationItem key={pageNumber}>
+                  <Button
+                    variant={pagination.page === pageNumber ? 'default' : 'outline'}
+                    size="icon"
+                    onClick={() => pagination.setPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                </PaginationItem>
+              )
+            })
+          })()}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                pagination.next()}
+              aria-disabled={!(pagination.page < pagination.pageCount)}
+              tabIndex={!(pagination.page < pagination.pageCount) ? -1 : undefined}
+              className={
+                !(pagination.page < pagination.pageCount) ? 'pointer-events-none opacity-50' : undefined
+              }
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </>
   )
 }

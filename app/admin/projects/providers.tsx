@@ -1,16 +1,27 @@
 'use client'
 
+import type { Row, Table } from '@tanstack/react-table'
 import type { UseFormReturn } from 'react-hook-form'
+import type { UseOffsetPaginationReturn } from '@/lib/hooks/use-offset-pagination'
 import type { Author } from '@/modules/authors/validation'
+import type { Tag } from '@/modules/projects/schema'
 import type { Project } from '@/modules/projects/validation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { createContext, useContext, useMemo, useState } from 'react'
+
+import { getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
+
+import { format } from 'date-fns'
+import { Edit, Trash2 } from 'lucide-react'
+import Image from 'next/image'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+
 import { useForm } from 'react-hook-form'
-
 import { toast } from 'sonner'
-
 import { z } from 'zod'
+import { Badge, Button } from '@/components/ui'
+import { useOffsetPagination } from '@/lib/hooks/use-offset-pagination'
+import { extractDriveFileId } from '@/lib/url'
 import { createProjectAction, deleteProjectAction, editProjectAction } from './_actions'
 
 const imageSlideSchema = z.object({
@@ -55,6 +66,8 @@ export const ProjectsPageContext = createContext<ProjectsPageContextValue | null
 export interface ProjectsPageContextValue {
   projects: Project[]
   authors: Author[]
+  pagination: UseOffsetPaginationReturn
+  table: Table<any>
   isOpen: boolean
   setIsOpen: (v: boolean) => void
   handleSubmitDelete: (v: number) => void
@@ -85,8 +98,15 @@ export function ProjectsPageProvider({
   children: React.ReactNode
 }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [paginationTotal, setPaginationTotal] = useState(0)
   const [selectedProject, setSelectedProject] = useState<Project>(defaultProject)
   const queryClient = useQueryClient()
+
+  const pagination = useOffsetPagination({
+    initialPage: 1,
+    initialPageSize: 10,
+    total: paginationTotal,
+  })
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -104,9 +124,9 @@ export function ProjectsPageProvider({
   })
 
   const { data: projects, isLoading } = useQuery({
-    queryKey: ['projects', { q: '', page: 1, pageSize: 10 }],
+    queryKey: ['projects', { q: '', page: pagination.page, pageSize: pagination.pageSize }],
     queryFn: async () => {
-      const r = await fetch('/api/projects', { cache: 'no-store' })
+      const r = await fetch(`/api/projects?page=${pagination.page}&pageSize=${pagination.pageSize}`, { cache: 'no-store' })
       if (!r.ok)
         throw new Error('Failed')
       return r.json()
@@ -114,8 +134,12 @@ export function ProjectsPageProvider({
     staleTime: 0,
   })
 
+  useEffect(() => {
+    setPaginationTotal(projects?.total || 0)
+  }, [projects?.total])
+
   const { data: authors } = useQuery({
-    queryKey: ['authors', { q: '', page: 1, pageSize: 10 }],
+    queryKey: ['authors', { q: '', page: 1, pageSize: 100 }],
     queryFn: async () => {
       const r = await fetch('/api/authors', { cache: 'no-store' })
       if (!r.ok)
@@ -204,10 +228,106 @@ export function ProjectsPageProvider({
     setSelectedProject(defaultProject)
   }
 
+  const columns = [
+    {
+      header: '',
+      accessorKey: 'slides',
+      cell: ({ row }: { row: Row<Project> }) => {
+        if (!row.original.slides?.[0]?.src)
+          return <div className="h-16 w-16 rounded-full bg-neutral-700" />
+
+        return (
+          <Image
+            src={`/api/image/thumb?id=${extractDriveFileId(row.original.slides?.[0]?.src)}&w=40`}
+            alt={row.original.title}
+            width={64}
+            height={64}
+            className="object-cover rounded-sm w-16 h-16"
+          />
+        )
+      },
+    },
+    {
+      header: 'Название',
+      accessorKey: 'title',
+    },
+    {
+      header: 'Автор',
+      accessorKey: 'author',
+      cell: ({ row }: { row: Row<Project> }) => (
+        <div className="text-sm text-muted-foreground">
+          <Badge variant="outline">{authors?.items.find((author: Author) => author.id === row.original.authorId)?.name || '-'}</Badge>
+        </div>
+      ),
+    },
+    {
+      header: 'Теги',
+      accessorKey: 'tags',
+      cell: ({ row }: { row: Row<Project> }) => {
+        return (
+          <div className="flex items-center gap-2">
+            {row.original.tags?.map((tag: Tag) => (
+              <Badge key={tag.url} variant="outline">
+                {tag.label}
+              </Badge>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      header: 'Статус',
+      accessorKey: 'status',
+      cell: ({ row }: { row: Row<Project> }) => {
+        return (
+          <Badge variant={row.original.status === 'active' ? 'default' : 'secondary'}>
+            {row.original.status === 'active' ? 'Активный' : 'Неактивный'}
+          </Badge>
+        )
+      },
+    },
+    {
+      header: 'Создано',
+      accessorKey: 'createdAt',
+      cell: ({ row }: { row: Row<Project> }) => {
+        return (
+          <div className="text-sm text-muted-foreground">
+            {row.original.date ? format(row.original.date, 'dd.MM.yyyy') : '-'}
+          </div>
+        )
+      },
+    },
+    {
+      header: '',
+      accessorKey: 'actions',
+      cell: ({ row }: { row: Row<Project> }) => {
+        return (
+          <div className="flex items-center gap-2">
+            <Button size="icon" variant="outline" onClick={() => onEdit(row.original.id || 0)}>
+              <Edit className="size-4" />
+            </Button>
+            <Button size="icon" variant="destructive" onClick={() => handleSubmitDelete(row.original.id || 0)}>
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const table = useReactTable({
+    data: projects?.items || [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  })
+
   const value = useMemo<ProjectsPageContextValue>(
     () => ({
       projects: projects?.items || [],
       authors: authors?.items || [],
+      pagination,
+      table,
       setIsOpen,
       isOpen,
       openModal,
@@ -221,6 +341,7 @@ export function ProjectsPageProvider({
     }),
     [
       projects?.items,
+      pagination,
       setIsOpen,
       isOpen,
       openModal,

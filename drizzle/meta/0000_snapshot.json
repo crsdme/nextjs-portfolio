@@ -1,5 +1,5 @@
 {
-  "id": "46ec92b1-8170-453a-99d6-854a7edae964",
+  "id": "8f5fe0cb-6fb0-43b6-990b-5f1f1c909516",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -408,8 +408,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "email": {
-          "name": "email",
+        "login": {
+          "name": "login",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -420,13 +420,19 @@
           "primaryKey": false,
           "notNull": true
         },
-        "role": {
-          "name": "role",
-          "type": "user_role",
-          "typeSchema": "public",
+        "accesses": {
+          "name": "accesses",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true,
-          "default": "'editor'"
+          "default": "'{}'::text[]"
+        },
+        "authors": {
+          "name": "authors",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::text[]"
         },
         "created_at": {
           "name": "created_at",
@@ -444,11 +450,11 @@
         }
       },
       "indexes": {
-        "users_email_uidx": {
-          "name": "users_email_uidx",
+        "users_login_uidx": {
+          "name": "users_login_uidx",
           "columns": [
             {
-              "expression": "email",
+              "expression": "login",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

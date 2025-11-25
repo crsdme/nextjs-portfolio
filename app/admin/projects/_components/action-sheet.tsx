@@ -26,7 +26,7 @@ export function ProjectsActionSheet() {
         <p className="text-sm text-muted-foreground">Создание, редактирование и удаление проектов</p>
       </div>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger>
+        <SheetTrigger asChild>
           <Button onClick={openModal}>Создать проект</Button>
         </SheetTrigger>
         <SheetContent className="overflow-y-auto w-[500px] sm:w-[640px]">
@@ -35,8 +35,10 @@ export function ProjectsActionSheet() {
           </SheetHeader>
           <ProjectsForm />
           <SheetFooter>
-            <Button variant="outline" onClick={closeModal}>Отмена</Button>
-            <Button type="submit" form="project-form">Сохранить</Button>
+            <div className="flex flex-col items-center gap-2 w-full">
+              <Button variant="outline" onClick={closeModal} className="w-full">Отмена</Button>
+              <Button type="submit" form="project-form" className="w-full">Сохранить</Button>
+            </div>
           </SheetFooter>
         </SheetContent>
       </Sheet>

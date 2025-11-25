@@ -27,36 +27,37 @@ export default function LoginPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-xl">Вход</CardTitle>
             <CardDescription>
-              Введите email и пароль, чтобы продолжить.
+              Введите логин и пароль, чтобы продолжить.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form action={action} className="space-y-4">
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="login">Логин</FieldLabel>
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  id="login"
+                  name="login"
+                  type="text"
+                  placeholder="Логин"
                   required
                   disabled={pending}
                 />
               </Field>
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel htmlFor="password">Пароль</FieldLabel>
                 </div>
                 <Input
                   id="password"
                   name="password"
                   type="password"
+                  placeholder="Пароль"
                   required
                   disabled={pending}
                 />
               </Field>
               <Field>
-                <Button type="submit" isLoading={pending}>Войти</Button>
+                <Button type="submit" disabled={pending}>Войти</Button>
               </Field>
               {state?.error && (
                 <Alert variant="destructive">

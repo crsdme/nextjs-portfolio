@@ -31,11 +31,11 @@ export function ProjectsClientList({
   q = '',
   page = 1,
   pageSize = 20,
-}: { q?: string, page?: number, pageSize?: number, author: any }) {
-  const params = new URLSearchParams({ q, page: String(page), pageSize: String(pageSize), sort: 'id.desc', authorId: String(author.id) })
+}: { q?: string, page?: number, pageSize?: number, author?: any }) {
+  const params = new URLSearchParams({ q, page: String(page), pageSize: String(pageSize), sort: 'id.desc', authorId: String(author?.id) })
 
   const { data, isLoading, isError } = useQuery<ListResponse>({
-    queryKey: ['projects', { q, page, pageSize, sort: 'id.desc', authorId: author.id }],
+    queryKey: ['projects', { q, page, pageSize, sort: 'id.desc', authorId: author?.id }],
     queryFn: async () => {
       const r = await fetch(`/api/projects?${params}`, { cache: 'no-store' })
       if (!r.ok)
@@ -51,7 +51,7 @@ export function ProjectsClientList({
 
   const { openAt, close } = useLightboxPathRouting<any>({
     data: data?.items,
-    authorSlug: author.slug,
+    basePath: author ? `/${author.slug}` : '/projects',
     isOpen,
     setIsOpen,
     active,
@@ -79,7 +79,7 @@ export function ProjectsClientList({
     <div className="px-4">
       <div className="grid grid-flow-dense gap-4
         sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-        auto-rows-[10rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem]"
+        auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem]"
       >
         {author && <AuthorInfo author={author} />}
         {data.items.map((p) => {

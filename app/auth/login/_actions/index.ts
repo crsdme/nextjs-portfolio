@@ -1,6 +1,6 @@
 'use server'
 
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -9,36 +9,37 @@ import { clearAuthCookie, setAuthCookie, signToken } from '@/lib/auth'
 import { users } from '@/modules/users/schema'
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  login: z.string().min(1, 'Укажите логин'),
   password: z.string().min(6),
 })
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  login: z.string().min(1, 'Укажите логин'),
   password: z.string().min(6),
-  role: z.enum(['admin', 'editor', 'viewer']).default('editor'),
+  accesses: z.array(z.number()).default([]),
+  authors: z.array(z.number()).default([]),
 })
 
 export async function loginAction(_: unknown, formData: FormData) {
   const parsed = loginSchema.safeParse({
-    email: formData.get('email'),
+    login: formData.get('login'),
     password: formData.get('password'),
   })
 
   if (!parsed.success) {
     return { ok: false, error: 'Неверные данные формы' as const }
   }
-  const { email, password } = parsed.data
+  const { login, password } = parsed.data
 
-  const user = await db.query.users.findFirst({ where: eq(users.email, email) })
+  const user = await db.query.users.findFirst({ where: eq(users.login, login) })
   if (!user)
-    return { ok: false, error: 'Неверный email' as const }
+    return { ok: false, error: 'Такого логина не существует' as const }
 
   const ok = await bcrypt.compare(password, user.passwordHash)
   if (!ok)
     return { ok: false, error: 'Неверный пароль' as const }
 
-  const token = await signToken({ sub: String(user.id), email: user.email, role: user.role as any })
+  const token = await signToken({ sub: String(user.id), login: user.login, accesses: user.accesses as any })
   await setAuthCookie(token)
 
   redirect('/admin')
@@ -51,19 +52,20 @@ export async function logoutAction() {
 
 export async function registerAction(_: unknown, formData: FormData) {
   const parsed = registerSchema.safeParse({
-    email: formData.get('email'),
+    login: formData.get('login'),
     password: formData.get('password'),
-    role: formData.get('role') ?? 'editor',
+    accesses: formData.get('accesses') ?? [],
+    authors: formData.get('authors') ?? [],
   })
   if (!parsed.success)
     return { ok: false, error: 'Неверные данные формы' as const }
 
-  const { email, password, role } = parsed.data
+  const { login, password, accesses, authors } = parsed.data
   const hash = await bcrypt.hash(password, 10)
 
-  await db.insert(users).values({ email, passwordHash: hash, role })
+  await db.insert(users).values({ login, passwordHash: hash, accesses, authors })
 
-  const token = await signToken({ sub: String(0), email, role })
+  const token = await signToken({ sub: String(0), login, accesses: accesses as any })
   await setAuthCookie(token)
 
   redirect('/admin')

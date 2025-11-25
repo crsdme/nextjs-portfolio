@@ -24,7 +24,7 @@ export function DatePicker({ className, value }: { className?: string, value?: D
           data-empty={!date}
           className={cn('data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal', className)}
         >
-          <CalendarIcon />
+          <CalendarIcon className="size-4 text-muted-foreground" />
           {date ? format(date, 'PPP') : <span>Выберите дату</span>}
         </Button>
       </PopoverTrigger>

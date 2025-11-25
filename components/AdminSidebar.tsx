@@ -1,4 +1,4 @@
-import { LayoutGrid, Settings, User, Users } from 'lucide-react'
+import { Home, LayoutGrid, Settings, User, Users } from 'lucide-react'
 import * as React from 'react'
 
 import {
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/'
+import { currentUser } from '@/lib/auth'
 import { NavUser } from './AdminSidebarUser'
 
 const data = {
@@ -20,6 +21,12 @@ const data = {
     {
       title: 'Основное',
       items: [
+        {
+          title: 'Главная',
+          url: '/admin',
+          icon: Home,
+          isActive: false,
+        },
         {
           title: 'Авторы',
           url: '/admin/authors',
@@ -49,7 +56,10 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const user = await currentUser()
+  if (!user)
+    return null
   return (
     <Sidebar {...props}>
       <SidebarContent>
@@ -74,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={{ name: 'Admin', email: 'admin@site.local', avatar: '/images/admin.jpg' }} />
+        <NavUser user={{ name: user.login, email: user.login, avatar: '/images/avatar.jpg' }} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

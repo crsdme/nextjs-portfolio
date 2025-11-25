@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 const cookieName = 'auth'
 
-export interface TokenPayload { sub: string, email: string, role: 'admin' | 'editor' | 'viewer' }
+export interface TokenPayload { sub: string, login: string, accesses: number[] }
 
 export async function signToken(payload: TokenPayload) {
   const exp = process.env.JWT_EXPIRES || '7d'
@@ -47,11 +47,18 @@ export async function currentUser() {
   catch { return null }
 }
 
-export async function requireUser(roles?: TokenPayload['role'][]) {
+export async function checkAuth() {
   const u = await currentUser()
   if (!u)
     throw new Error('UNAUTHORIZED')
-  if (roles && !roles.includes(u.role))
+  return u
+}
+
+export async function checkAccess(accesses?: TokenPayload['accesses']) {
+  const u = await currentUser()
+  if (!u)
+    throw new Error('UNAUTHORIZED')
+  if (accesses && !u.accesses.some(access => accesses.includes(access)))
     throw new Error('FORBIDDEN')
   return u
 }

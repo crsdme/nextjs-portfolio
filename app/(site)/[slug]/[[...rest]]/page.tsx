@@ -34,7 +34,7 @@ export default async function AuthorPage({ params }: { params: RouteParams }) {
   const { slug } = await params
 
   const author = await actions.getAuthorCached(slug)
-  if (!author)
+  if (!author && slug !== 'projects')
     notFound()
 
   return (

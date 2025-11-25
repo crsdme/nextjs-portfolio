@@ -1,6 +1,9 @@
-export default function Home() {
+import { ProjectsClientList } from '@/components/ProjectsList'
+
+export default async function Home() {
   return (
-    <div className="flex gap-4 w-full h-full justify-center items-center">
-    </div>
+    <>
+      <ProjectsClientList />
+    </>
   )
 }

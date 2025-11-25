@@ -124,8 +124,8 @@ export function AuthorsList({
         </CarouselContent>
 
         {/* стрелки */}
-        <CarouselPrevious variant="default" className="left-0 h-20 rounded-sm" />
-        <CarouselNext variant="default" className="right-0 h-20 rounded-sm" />
+        <CarouselPrevious variant="default" className="left-0 h-20 rounded-sm hidden sm:block" />
+        <CarouselNext variant="default" className="right-0 h-20 rounded-sm hidden sm:block" />
       </Carousel>
     </div>
   )

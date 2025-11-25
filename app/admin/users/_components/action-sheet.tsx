@@ -7,37 +7,37 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/'
-import { useAuthorsPageContext } from '../providers'
-import { AuthorsForm } from './form'
+import { useUsersPageContext } from '../providers'
+import { UsersForm } from './form'
 
-export function AuthorsActionSheet() {
+export function UsersActionSheet() {
   const {
     setIsOpen,
     isOpen,
     openModal,
     closeModal,
-    selectedAuthor,
-  } = useAuthorsPageContext()
+    selectedUser,
+  } = useUsersPageContext()
 
   return (
     <div className="flex justify-between items-center">
       <div>
-        <h1 className="text-2xl font-bold">Авторы</h1>
-        <p className="text-sm text-muted-foreground">Создание, редактирование и удаление авторов</p>
+        <h1 className="text-2xl font-bold">Пользователи</h1>
+        <p className="text-sm text-muted-foreground">Создание, редактирование и удаление пользователей</p>
       </div>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button onClick={openModal}>Создать автора</Button>
+          <Button onClick={openModal}>Создать пользователя</Button>
         </SheetTrigger>
         <SheetContent className="w-[700px]">
           <SheetHeader>
-            <SheetTitle>{selectedAuthor.id ? 'Редактировать автора' : 'Создать автора'}</SheetTitle>
+            <SheetTitle>{selectedUser.id ? 'Редактировать пользователя' : 'Создать пользователя'}</SheetTitle>
           </SheetHeader>
-          <AuthorsForm />
+          <UsersForm />
           <SheetFooter>
             <div className="flex flex-col items-center gap-2 w-full">
               <Button variant="outline" onClick={closeModal} className="w-full">Отмена</Button>
-              <Button type="submit" form="author-form" className="w-full">Сохранить</Button>
+              <Button type="submit" form="user-form" className="w-full">Сохранить</Button>
             </div>
           </SheetFooter>
         </SheetContent>

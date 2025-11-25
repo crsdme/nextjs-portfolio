@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { AppSidebar } from '@/components/AdminSidebar'
 import { Toaster } from '@/components/ui'
 import { SidebarInset, SidebarProvider } from '@/components/ui/'
-import { requireUser } from '@/lib/auth'
+import { checkAuth } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Admin | Portfolio',
@@ -22,12 +22,11 @@ export const metadata: Metadata = {
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   try {
-    await requireUser(['admin'])
+    await checkAuth()
   }
   catch {
     redirect('/auth/login')
   }
-
   return (
     <SidebarProvider>
       <AppSidebar />

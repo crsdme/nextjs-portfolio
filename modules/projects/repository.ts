@@ -1,5 +1,5 @@
 import type * as projectValidation from './validation'
-import { eq, sql } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
 import {
   andAll,
@@ -90,11 +90,21 @@ export async function list(p: projectValidation.ProjectsQuery = {
     .from(projects)
     .leftJoin(pm, eq(pm.projectId, projects.id))
     .where(where)
-    .groupBy(projects.id)
-    .orderBy(orderByFromSort(p.sort, {
-      id: projects.id,
-      createdAt: projects.createdAt,
-    }, 'id', 'desc'))
+    .groupBy(
+      projects.id,
+      projects.title,
+      projects.subtitle,
+      projects.createdAt,
+      projects.authorId,
+      projects.status,
+      projects.tags,
+      projects.date,
+      projects.slug,
+    )
+    .orderBy(
+      desc(projects.authorId),
+      desc(projects.createdAt),
+    )
     .limit(pageSize)
     .offset((page - 1) * pageSize)
 

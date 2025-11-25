@@ -15,6 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Separator,
   Textarea,
 } from '@/components/ui/'
 import { useProjectsPageContext } from '../providers'
@@ -242,6 +243,7 @@ export function ProjectsForm() {
                 <Trash2 className="h-4 w-4" />
                 Удалить
               </Button>
+              { idx !== slidesFields.length - 1 && <Separator className="my-2" /> }
             </div>
           ))}
           <FormMessage />

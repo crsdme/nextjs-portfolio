@@ -1,14 +1,13 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect } from 'react'
 
 type Id = string | number
 interface WithSlides { id: Id, slug?: string, slides?: unknown[] | null }
 
 export function useLightboxPathRouting<T extends WithSlides>(opts: {
   data?: T[]
-  authorSlug: string
+  basePath: string
   isOpen: boolean
   setIsOpen: (v: boolean) => void
   active: T | null
@@ -16,87 +15,85 @@ export function useLightboxPathRouting<T extends WithSlides>(opts: {
   index: number
   setIndex: (v: number) => void
 }) {
-  const { data, authorSlug, isOpen, setIsOpen, active, setActive, index, setIndex } = opts
-  const pathname = usePathname()
-  const guard = useRef(false)
+  const {
+    data,
+    basePath,
+    isOpen,
+    setIsOpen,
+    active,
+    setActive,
+    index,
+    setIndex,
+  } = opts
 
-  const [hash, setHash] = useState<string>(typeof window !== 'undefined' ? window.location.hash : '')
-
-  useEffect(() => {
-    const onHash = () => setHash(window.location.hash)
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-
-  const { urlAuthor, urlProject, urlSlideNum } = useMemo(() => {
-    const parts = pathname.split('/').filter(Boolean)
-    const slideFromHash = hash ? Math.max(1, Number.parseInt(hash.slice(1), 10) || 1) : null
-    return {
-      urlAuthor: parts[0],
-      urlProject: parts[1],
-      urlSlideNum: slideFromHash,
-    }
-  }, [pathname, hash])
-
-  useEffect(() => {
-    if (!data || !urlAuthor || !urlProject)
-      return
-    if (urlAuthor !== authorSlug)
-      return
-
-    const found = data.find(p => (p.slug ?? String(p.id)) === urlProject)
-    if (!found)
-      return
-
-    const total = found.slides?.length ?? 1
-    const desiredIdx = Math.min((urlSlideNum ?? 1) - 1, Math.max(total - 1, 0))
-
-    if (guard.current) {
-      guard.current = false
-      return
-    }
-
-    const sameProject = (active?.slug ?? String(active?.id ?? '')) === (found.slug ?? String(found.id))
-    if (isOpen && sameProject && index === desiredIdx)
-      return
-
-    setActive(found)
-    setIndex(desiredIdx)
-    setIsOpen(true)
-  }, [pathname, hash, data, authorSlug])
-
-  useEffect(() => {
-    if (!isOpen || !active)
-      return
-    const base = `/${authorSlug}/${active.slug ?? String(active.id)}`
-    const newUrl = `${base}#${index + 1}`
-    if (location.pathname + location.hash !== newUrl) {
-      history.replaceState(null, '', newUrl)
-    }
-  }, [isOpen, active, index, authorSlug])
-
-  useEffect(() => {
-    if (!isOpen)
-      return
-    if (!(urlAuthor === authorSlug && urlProject)) {
-      setIsOpen(false)
-      setActive(null)
-    }
-  }, [urlAuthor, urlProject, authorSlug, isOpen, setIsOpen, setActive])
+  const buildProjectPath = (p: T, slideIndex: number) => {
+    const slugOrId = p.slug ?? String(p.id)
+    return `${basePath}/${slugOrId}#${slideIndex + 1}`
+  }
 
   const openAt = (p: T, idx = 0) => {
     setActive(p)
     setIndex(idx)
     setIsOpen(true)
-    history.replaceState(null, '', `/${authorSlug}/${p.slug ?? String(p.id)}#${idx + 1}`)
+
+    history.replaceState(null, '', buildProjectPath(p, idx))
   }
 
   const close = () => {
-    // guard.current = true
     setIsOpen(false)
     setActive(null)
-    history.replaceState(null, '', `/${authorSlug}`)
+    history.replaceState(null, '', basePath)
   }
+
+  // -------------------------------
+  // ⭐ ОТКРЫТИЕ ПО ПРЯМОЙ ССЫЛКЕ
+  // -------------------------------
+  useEffect(() => {
+    if (!data || !data.length)
+      return
+
+    const path = window.location.pathname // "/anna-smirnova/conference-reel-2"
+    const hash = window.location.hash // "#1"
+
+    const parts = path.split('/').filter(Boolean)
+    if (parts[0] !== basePath.replace('/', '').trim())
+      return
+    if (!parts[1])
+      return
+
+    const projectSlug = parts[1]
+    const project = data.find(p => (p.slug ?? String(p.id)) === projectSlug)
+    if (!project)
+      return
+
+    const slideNum = hash.startsWith('#')
+      ? Math.max(1, Number(hash.slice(1)) || 1)
+      : 1
+
+    const idx = slideNum - 1
+
+    // если уже открыто — ничего не делаем
+    if (isOpen && active?.id === project.id)
+      return
+
+    setActive(project)
+    setIndex(idx)
+    setIsOpen(true)
+  }, [data, basePath])
+  // -------------------------------
+
+  // keep URL synced when switching slides
+  useEffect(() => {
+    if (!isOpen || !active)
+      return
+
+    const href = buildProjectPath(active, index)
+    const cur = window.location.pathname + window.location.hash
+
+    if (cur !== href) {
+      history.replaceState(null, '', href)
+    }
+  }, [isOpen, active, index, basePath])
 
   return { openAt, close }
 }
