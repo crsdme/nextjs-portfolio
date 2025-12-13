@@ -2,13 +2,13 @@
 
 import type { Author } from '@/modules/authors/validation'
 import type { Project } from '@/modules/projects/validation'
-import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Lightbox } from '@/components/'
 import { useLightboxPathRouting } from '@/lib/hooks/use-lightbox-routing'
 import { extractDriveFileId } from '@/lib/url'
-import { Avatar, AvatarFallback, AvatarImage, Badge, Skeleton } from './ui/'
+import { Avatar, AvatarFallback, AvatarImage, Badge } from './ui/'
 
 interface ListResponse {
   items: Project[]
@@ -18,40 +18,17 @@ interface ListResponse {
   hasNext?: boolean
 }
 
-interface ListResponse {
-  items: Project[]
-  total: number
-  page: number
-  pageSize: number
-  hasNext?: boolean
-}
-
-export function ProjectsClientList({
+export function ProjectsList({
   author,
-  q = '',
-  page = 1,
-  pageSize = 20,
-}: { q?: string, page?: number, pageSize?: number, author?: any }) {
-  const params = new URLSearchParams({ q, page: String(page), pageSize: String(pageSize), sort: 'id.desc', authorId: String(author?.id) })
-
-  const { data, isLoading, isError } = useQuery<ListResponse>({
-    queryKey: ['projects', { q, page, pageSize, sort: 'id.desc', authorId: author?.id }],
-    queryFn: async () => {
-      const r = await fetch(`/api/projects?${params}`, { cache: 'no-store' })
-      if (!r.ok)
-        throw new Error('Failed')
-      return r.json()
-    },
-    staleTime: 0,
-  })
-
+  data,
+}: { author?: Author, data: ListResponse }) {
   const [active, setActive] = useState<any>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [index, setIndex] = useState(0)
 
   const { openAt, close } = useLightboxPathRouting<any>({
     data: data?.items,
-    basePath: author ? `/${author.slug}` : '/projects',
+    basePath: author ? `/${author?.slug}` : '/projects',
     isOpen,
     setIsOpen,
     active,
@@ -60,28 +37,23 @@ export function ProjectsClientList({
     setIndex,
   })
 
-  if (isLoading) {
-    return (
-      <div className="px-4">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="h-62 w-full bg-neutral-700" />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (isError || !data)
-    return <div className="p-2">Ошибка</div>
-
   return (
-    <div className="px-4">
+    <div className="px-4 pb-4">
       <div className="grid grid-flow-dense gap-4
         sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
         auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem]"
       >
-        {author && <AuthorInfo author={author} />}
+        {!author && (
+          <Link href="https://transalation.shop" target="_blank" rel="noopener noreferrer" className="object-cover absolute bottom-8 right-8 z-1000 rotate-2">
+            <Image
+              src="/merch-image.png"
+              width={250}
+              height={276}
+              alt="Merch Image"
+            />
+          </Link>
+        )}
+        <AuthorInfo author={author} />
         {data.items.map((p) => {
           const cover = pickCardCover(p)
           return (
@@ -125,7 +97,10 @@ export function ProjectsClientList({
   )
 }
 
-function AuthorInfo({ author }: { author: Author }) {
+function AuthorInfo({ author }: { author?: Author }) {
+  if (!author)
+    return null
+
   return (
     <button
       className="

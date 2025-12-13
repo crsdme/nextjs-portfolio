@@ -39,10 +39,10 @@ async function main() {
     RESTART IDENTITY CASCADE;
   `)
 
-  const [ivan] = await db.insert(schema.authors).values({
-    name: 'Иван Петров',
-    slug: 'ivan-petrov',
-    description: 'Фронтенд-разработчик. Делаю быстрые и аккуратные интерфейсы.',
+  const [author1] = await db.insert(schema.authors).values({
+    name: 'Lorfreed',
+    slug: 'lorfreed',
+    description: '3D Artist — Modeling, Texturing, Rendering',
     avatarUrl: 'https://drive.google.com/file/d/1BJa3sjaWeTfkzQKABbN29DPOGZqQVzws/view?usp=sharing',
     socials: [
       { label: 'Telegram', url: 'https://t.me/ivan' },
@@ -51,50 +51,15 @@ async function main() {
     ],
   }).returning()
 
-  const [anna] = await db.insert(schema.authors).values({
-    name: 'Анна Смирнова',
-    slug: 'anna-smirnova',
-    description: 'Дизайнер интерфейсов и арт-директор. Люблю простые и чистые решения.',
+  const [author2] = await db.insert(schema.authors).values({
+    name: 'Monstertraxxx',
+    slug: 'monstertraxxx',
+    description: 'Artist & Illustrator',
     avatarUrl: 'https://drive.google.com/file/d/1FPaX_JBUHyFxF1H9zSmWpsCqwJLVZ8_C/view?usp=sharing',
     socials: [
       { label: 'Behance', url: 'https://behance.net/anna' },
       { label: 'Dribbble', url: 'https://dribbble.com/anna' },
       { label: 'Instagram', url: 'https://instagram.com/anna' },
-    ],
-  }).returning()
-
-  await db.insert(schema.authors).values({
-    name: 'Андрей Иванов',
-    slug: 'andrey-ivanov',
-    description: 'Backend-разработчик. Делаю надежные и масштабируемые сервисы.',
-    avatarUrl: 'https://drive.google.com/file/d/1PueiamS2OBE10D-YB67O5MAVS_kKtKZI/view',
-    socials: [
-      { label: 'Telegram', url: 'https://t.me/andrey' },
-      { label: 'GitHub', url: 'https://github.com/andrey' },
-      { label: 'LinkedIn', url: 'https://linkedin.com/in/andrey' },
-    ],
-  }).returning()
-
-  await db.insert(schema.authors).values({
-    name: 'Игорь Сидоров',
-    slug: 'igor-sidorov',
-    description: 'Fullstack-разработчик. Делаю полные и масштабируемые сервисы.',
-    avatarUrl: 'https://drive.google.com/file/d/1pes7vJfnjyClJ9O1s1H6d-FMSE7Y6IBt/view?usp=drive_link',
-    socials: [
-      { label: 'Telegram', url: 'https://t.me/igor' },
-      { label: 'GitHub', url: 'https://github.com/igor' },
-      { label: 'LinkedIn', url: 'https://linkedin.com/in/igor' },
-    ],
-  }).returning()
-
-  await db.insert(schema.authors).values({
-    name: 'Михаил Петров',
-    slug: 'mikhail-petrov',
-    description: 'Дизайнер интерфейсов и арт-директор. Люблю простые и чистые решения.',
-    avatarUrl: 'https://drive.google.com/file/d/1pes7vJfnjyClJ9O1s1H6d-FMSE7Y6IBt/view?usp=drive_link',
-    socials: [
-      { label: 'Telegram', url: 'https://t.me/mikhail' },
-      { label: 'GitHub', url: 'https://github.com/mikhail' },
     ],
   }).returning()
 
@@ -105,18 +70,18 @@ async function main() {
     login: 'admin',
     passwordHash: adminHash,
     accesses: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    authors: [ivan.id.toString(), anna.id.toString()],
+    authors: [author1.id.toString(), author2.id.toString()],
   }).returning()
 
   const [editor] = await db.insert(schema.users).values({
     login: 'editor',
     passwordHash: editorHash,
     accesses: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-    authors: [ivan.id.toString(), anna.id.toString()],
+    authors: [author1.id.toString(), author2.id.toString()],
   }).returning()
 
   const [p1] = await db.insert(schema.projects).values({
-    authorId: ivan.id,
+    authorId: author1.id,
     slug: 'product-teaser-2',
     title: 'Product Teaser',
     subtitle: '30-секундный ролик',
@@ -152,7 +117,7 @@ async function main() {
   })
 
   const [p2] = await db.insert(schema.projects).values({
-    authorId: ivan.id,
+    authorId: author2.id,
     slug: 'aurora-landing',
     title: 'Aurora Landing',
     subtitle: 'Акцент на скорость',
@@ -200,7 +165,7 @@ async function main() {
   ])
 
   const [p3] = await db.insert(schema.projects).values({
-    authorId: anna.id,
+    authorId: author1.id,
     slug: 'nimbus-design-system',
     title: 'Nimbus Design System',
     subtitle: 'Компоненты и токены',
@@ -236,7 +201,7 @@ async function main() {
   }).returning()
 
   const [p4] = await db.insert(schema.projects).values({
-    authorId: anna.id,
+    authorId: author2.id,
     slug: 'conference-reel',
     title: 'Conference Reel',
     subtitle: 'Динамичная нарезка',
@@ -262,7 +227,7 @@ async function main() {
   }).returning()
 
   const [p5] = await db.insert(schema.projects).values({
-    authorId: ivan.id,
+    authorId: author1.id,
     slug: 'product-teaser',
     title: 'Product Teaser',
     subtitle: '30-секундный ролик',
@@ -300,7 +265,7 @@ async function main() {
   }).returning()
 
   const [p6] = await db.insert(schema.projects).values({
-    authorId: ivan.id,
+    authorId: author2.id,
     slug: 'aurora-landing-2',
     title: 'Aurora Landing',
     subtitle: 'Акцент на скорость',
@@ -348,7 +313,7 @@ async function main() {
   ])
 
   const [p7] = await db.insert(schema.projects).values({
-    authorId: anna.id,
+    authorId: author1.id,
     slug: 'nimbus-design-system-2',
     title: 'Nimbus Design System',
     subtitle: 'Компоненты и токены',
@@ -386,7 +351,7 @@ async function main() {
   }).returning()
 
   const [p8] = await db.insert(schema.projects).values({
-    authorId: anna.id,
+    authorId: author2.id,
     slug: 'conference-reel-2',
     title: 'Conference Reel',
     subtitle: 'Динамичная нарезка',
@@ -440,7 +405,7 @@ async function main() {
 
   const projects = [
     {
-      authorId: ivan.id,
+      authorId: author1.id,
       slug: 'product-teaser-2-32421',
       title: 'Product Teaser 2',
       subtitle: '30-секундный ролик',
@@ -485,7 +450,7 @@ async function main() {
       ],
     },
     {
-      authorId: ivan.id,
+      authorId: author1.id,
       slug: 'product-teaser-2-3231',
       title: 'Product Teaser',
       subtitle: '30-секундный ролик',
@@ -530,7 +495,7 @@ async function main() {
       ],
     },
     {
-      authorId: ivan.id,
+      authorId: author2.id,
       slug: 'product-teaser-43524662',
       title: 'Product Teaser',
       subtitle: '30-секундный ролик',
@@ -575,7 +540,7 @@ async function main() {
       ],
     },
     {
-      authorId: ivan.id,
+      authorId: author1.id,
       slug: 'product-teaser-345v342',
       title: 'Product Teaser',
       subtitle: '30-секундный ролик',
@@ -620,7 +585,7 @@ async function main() {
       ],
     },
     {
-      authorId: ivan.id,
+      authorId: author2.id,
       slug: 'product-teaser-2c31241c234',
       title: 'Product Teaser',
       subtitle: '30-секундный ролик',
@@ -665,7 +630,7 @@ async function main() {
       ],
     },
     {
-      authorId: ivan.id,
+      authorId: author1.id,
       slug: 'product-teaser-231c41234c1232',
       title: 'Product Teaser',
       subtitle: '30-секундный ролик',
@@ -725,11 +690,25 @@ async function main() {
     }
   }
 
+  for (const project of [...projects, ...projects, ...projects, ...projects, ...projects, ...projects, ...projects, ...projects, ...projects, ...projects]) {
+    const [p] = await db.insert(schema.projects).values({ ...project, status: 'active', slug: Math.random().toString(36).substring(2, 15) }).returning()
+    for (const slide of project.slides) {
+      await db.insert(schema.projectMedia).values({
+        projectId: p.id,
+        position: 0,
+        type: slide.type as 'image' | 'video',
+        src: slide.src,
+        caption: slide.caption,
+        description: slide.description,
+      }).returning()
+    }
+  }
+
   // eslint-disable-next-line no-console
   console.timeEnd('seed')
   // eslint-disable-next-line no-console
   console.log('✔ Seed completed:', {
-    authors: [ivan.slug, anna.slug],
+    authors: [author1.slug, author2.slug],
     users: [admin.login, editor.login],
     projects: [p1.slug, p2.slug, p3.slug, p4.slug],
   })

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ProjectsClientList } from '@/components/'
+import { ProjectsInfiniteList } from '@/components/ProjectsInfiniteList'
+import { ProjectsListServer } from '@/components/ProjectsListServer'
 import * as actions from './_actions'
 
 interface RouteParams { slug: string, rest?: string[] }
@@ -38,6 +39,9 @@ export default async function AuthorPage({ params }: { params: RouteParams }) {
     notFound()
 
   return (
-    <ProjectsClientList author={author} />
+    <>
+      <ProjectsListServer pageSize={22} page={1} author={author} />
+      <ProjectsInfiniteList pageSize={22} page={2} author={author} />
+    </>
   )
 }

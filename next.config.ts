@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
     ],
     localPatterns: [
       { pathname: '/api/image/thumb/**' },
+      { pathname: '/portfolio-logo.png' },
+      { pathname: '/merch-image.png' },
     ],
   },
 }
