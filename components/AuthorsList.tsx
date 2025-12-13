@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/'
 import { extractDriveFileId } from '@/lib/url'
-import { AuthorService, AuthorValidation } from '@/modules/authors'
+import { AuthorService } from '@/modules/authors'
 
 interface ListResponse {
   items: Author[]
