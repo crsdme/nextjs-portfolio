@@ -10,5 +10,8 @@ export async function getBySlug(slug: string) {
 export const getAuthorCached = unstable_cache(
   async (slug: string) => getBySlug(slug),
   ['author-by-slug'],
-  { revalidate: 3600 },
+  {
+    revalidate: 36000,
+    tags: ['authors'],
+  },
 )
