@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { AuthorsList } from '@/components/AuthorsList'
 import { HeaderMain } from '@/components/HeaderMain'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   return (
     <div className="max-w-2xl mx-auto">
