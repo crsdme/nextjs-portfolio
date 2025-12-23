@@ -3,12 +3,10 @@
 import type { Author } from '@/modules/authors/validation'
 import type { Project } from '@/modules/projects/validation'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useState } from 'react'
 import { Lightbox } from '@/components/'
 import { useLightboxPathRouting } from '@/lib/hooks/use-lightbox-routing'
 import { extractDriveFileId } from '@/lib/url'
-import { Avatar, AvatarFallback, AvatarImage, Badge } from './ui/'
 
 interface ListResponse {
   items: Project[]
@@ -38,22 +36,11 @@ export function ProjectsList({
   })
 
   return (
-    <div className="px-4 pb-4">
-      <div className="grid grid-flow-dense gap-4
-        sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-        auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem]"
+    <div className="px-2 pb-2 sm:px-4 sm:pb-4 max-w-7xl mx-auto">
+      <div className="grid grid-flow-dense gap-2
+        sm:grid-cols-2 lg:grid-cols-3
+        auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem] sm:gap-4"
       >
-        {!author && (
-          <Link href="https://transalation.shop" target="_blank" rel="noopener noreferrer" className="object-cover absolute bottom-8 right-8 z-1000 rotate-2">
-            <Image
-              src="/merch-image.png"
-              width={250}
-              height={276}
-              alt="Merch Image"
-            />
-          </Link>
-        )}
-        <AuthorInfo author={author} />
         {data.items.map((p) => {
           const cover = pickCardCover(p)
           return (
@@ -94,42 +81,6 @@ export function ProjectsList({
         onSlideChange={setIndex}
       />
     </div>
-  )
-}
-
-function AuthorInfo({ author }: { author?: Author }) {
-  if (!author)
-    return null
-
-  return (
-    <button
-      className="
-      group relative overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900
-      opacity-95 hover:opacity-100 transition-opacity
-      col-span-1 row-span-2"
-    >
-      <div className="flex flex-col w-full items-center justify-center text-neutral-200 px-6 py-8">
-        <Avatar className="h-24 w-24 rounded-full object-cover">
-          <AvatarImage src={`/api/image/thumb?id=${extractDriveFileId(author.avatarUrl)}&w=96`} alt={author.name} />
-          <AvatarFallback className="rounded-full">UR</AvatarFallback>
-        </Avatar>
-        <div className="text-xl font-semibold mb-1">{author.name}</div>
-        <div className="text-base text-neutral-400 mb-3">{author.description}</div>
-        <div className="flex gap-3 mt-2 mb-8">
-          {(author.socials || []).map(soc => (
-            <Badge
-              key={soc.url}
-              variant="secondary"
-              asChild
-            >
-              <a href={soc.url} target="_blank" rel="noopener noreferrer">
-                {soc.label}
-              </a>
-            </Badge>
-          ))}
-        </div>
-      </div>
-    </button>
   )
 }
 

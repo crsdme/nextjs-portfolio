@@ -17,7 +17,7 @@ const formSchema = z.object({
   description: z.string().min(3, { message: 'Описание должно быть не менее 3 символов' }).trim(),
   avatarUrl: z.string().min(3, { message: 'URL аватара должно быть не менее 3 символов' }).trim(),
   socials: z.array(z.object({
-    label: z.string().min(3, { message: 'Название должно быть не менее 3 символов' }).trim(),
+    label: z.string().min(1, { message: 'Название должно быть не менее 1 символов' }).trim(),
     url: z.string().min(3, { message: 'URL должно быть не менее 3 символов' }).trim(),
   })),
   slug: z.string().min(3, { message: 'Slug должно быть не менее 3 символов' }).trim(),

@@ -1,8 +1,17 @@
 import type { Metadata } from 'next'
 import process from 'node:process'
 import { Geist, Geist_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import Providers from '@/app/providers'
 import './globals.css'
+
+const oldEnglish = localFont({
+  src: [
+    { path: '../public/old-english.ttf', weight: '400', style: 'normal' },
+  ],
+  variable: '--font-old-english',
+  display: 'swap',
+})
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -56,7 +65,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
+        className={`${geistSans.variable} ${geistMono.variable} ${oldEnglish.variable} antialiased bg-black`}
       >
         <Providers>
           {children}

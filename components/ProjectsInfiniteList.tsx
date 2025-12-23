@@ -113,11 +113,11 @@ export function ProjectsInfiniteList({
   }
 
   return (
-    <div className="px-4 pb-4">
+    <div className="px-2 pb-2 sm:px-4 sm:pb-4 max-w-7xl mx-auto">
       <div
-        className="grid grid-flow-dense gap-4
-          sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-          auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem]"
+        className="grid grid-flow-dense gap-2
+          sm:grid-cols-2 lg:grid-cols-3
+          auto-rows-[14rem] sm:auto-rows-[12rem] lg:auto-rows-[14rem] sm:gap-4"
       >
         {items.map((p) => {
           const cover = pickCardCover(p)

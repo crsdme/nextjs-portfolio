@@ -1,5 +1,4 @@
 import type { Author } from '@/modules/authors/validation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/'
 import { extractDriveFileId } from '@/lib/url'
@@ -39,18 +38,7 @@ export async function AuthorsList({
   const data = await fetchAuthors({ page, pageSize })
 
   return (
-    <div className="flex flex-wrap gap-4 p-4">
-      <div className="flex-1">
-        <Link
-          href="/"
-          prefetch
-          className="
-          group relative flex gap-4 items-center overflow-hidden rounded-lg border border-neutral-800 bg-[#1a1a1a] p-4 opacity-90
-          hover:opacity-100 transition-opacity duration-200 h-full justify-center min-w-72"
-        >
-          <Image src="/portfolio-logo.png" alt="logo" height={48} width={173} />
-        </Link>
-      </div>
+    <>
       {data.items.map(author => (
         <div
           key={author.id}
@@ -61,7 +49,7 @@ export async function AuthorsList({
             prefetch
             className="
                 group relative flex gap-4 items-center overflow-hidden rounded-lg border border-neutral-800 bg-[#1a1a1a] p-4 opacity-90
-                hover:opacity-100 transition-opacity duration-200 min-w-72"
+                hover:opacity-100 transition-opacity duration-200 min-w-76 md:min-w-92"
           >
             {author.avatarUrl
               ? (
@@ -82,6 +70,6 @@ export async function AuthorsList({
           </Link>
         </div>
       ))}
-    </div>
+    </>
   )
 }

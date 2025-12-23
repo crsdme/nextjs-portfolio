@@ -29,7 +29,7 @@ export function AuthorsActionSheet() {
         <SheetTrigger asChild>
           <Button onClick={openModal}>Создать автора</Button>
         </SheetTrigger>
-        <SheetContent className="w-[700px]">
+        <SheetContent className="w-[700px] overflow-y-auto">
           <SheetHeader>
             <SheetTitle>{selectedAuthor.id ? 'Редактировать автора' : 'Создать автора'}</SheetTitle>
           </SheetHeader>

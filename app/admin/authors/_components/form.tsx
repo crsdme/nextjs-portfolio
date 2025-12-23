@@ -9,6 +9,11 @@ import {
   FormLabel,
   FormMessage,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
 } from '@/components/ui/'
 import { useAuthorsPageContext } from '../providers'
@@ -16,7 +21,7 @@ import { useAuthorsPageContext } from '../providers'
 export function AuthorsForm() {
   const { form, handleSubmit } = useAuthorsPageContext()
 
-  const { control, register } = form
+  const { control } = form
   const { fields, append, remove } = useFieldArray({ control, name: 'socials' })
 
   return (
@@ -79,25 +84,46 @@ export function AuthorsForm() {
         />
 
         <FormItem>
-          <FormLabel>Социальные сети</FormLabel>
+          <FormLabel>Соц-сети</FormLabel>
           {fields.map((f, idx) => (
-            <div key={f.id} className="flex items-center gap-2">
-              <Input
-                placeholder="Название"
-                {...register(`socials.${idx}.label`)}
-                className="flex-1"
+            <div key={f.id} className="flex flex-wrap flex-col gap-2">
+              <FormField
+                control={form.control}
+                name={`socials.${idx}.label`}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Выберите тип" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="telegram">Telegram</SelectItem>
+                      <SelectItem value="youtube">YouTube</SelectItem>
+                      <SelectItem value="twitch">Twitch</SelectItem>
+                      <SelectItem value="vk">Vkontakte</SelectItem>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="tiktok">TikTok</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               />
-              <Input
-                placeholder="URL-ссылка"
-                {...register(`socials.${idx}.url`)}
-                className="flex-1"
+
+              <FormField
+                control={form.control}
+                name={`socials.${idx}.url`}
+                render={({ field }) => (
+                  <Input
+                    placeholder="URL"
+                    {...field}
+                    className="flex-1 min-h-9"
+                  />
+                )}
               />
+
               <Button
                 type="button"
                 variant="destructive"
-                size="icon"
                 onClick={() => remove(idx)}
-                className="rounded-md"
+                className="rounded-md w-full"
                 aria-label="Удалить"
               >
                 <Trash2 className="h-4 w-4" />

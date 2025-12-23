@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
     ],
     localPatterns: [
       { pathname: '/api/image/thumb/**' },
-      { pathname: '/portfolio-logo.png' },
+      { pathname: '/portfolio-logo.svg' },
       { pathname: '/merch-image.png' },
     ],
   },
